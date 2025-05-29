@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Utilities Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+      color: white;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    header {
+      padding: 24px 20px;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      background: #121212; /* darker overlay */
+      color: #f5f5f5;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      z-index: 10;
+      user-select: none;
+    }
+    .sub-header {
+      font-size: 16px;
+      font-weight: 400;
+      color: #bbb;
+      margin-top: 5px;
+    }
+    .content {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      gap: 20px;
+      overflow-y: auto;
+    }
+    .card {
+      background: rgba(255,255,255,0.08);
+      border-radius: 15px;
+      padding: 25px;
+      width: 220px;
+      height: 130px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 500;
+      transition: transform 0.3s ease-in-out;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      text-decoration: none;
+      color: white;
+    }
+    .card:hover {
+      transform: scale(1.05);
+      cursor: pointer;
+      background: rgba(255,255,255,0.12);
+    }
+    .card i {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #00d4ff;
+    }
+    button.logout-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background-color: crimson;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @media (max-width: 600px) {
+      .card {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="logout-btn" onclick="logoutUser()">Logout</button>
+  <header>
+    Welcome to Utilities Portal Dashboard
+    <div class="sub-header">Hi Sir 👋 What can I help you with?</div>
+  </header>
+  <div class="content">
+    <a href="#" class="card" title="Boiler Logs">
+      <i class="fas fa-fire"></i>
+      Boiler Logs
+    </a>
+    <a href="#" class="card" title="Water Treatment">
+      <i class="fas fa-tint"></i>
+      Water Treatment
+    </a>
+    <a href="#" class="card" title="Waste Water">
+      <i class="fas fa-recycle"></i>
+      Waste Water
+    </a>
+    <a href="#" class="card" title="PM Work Order">
+      <i class="fas fa-wrench"></i>
+      PM Work Order
+    </a>
+    <a href="#" class="card" title="Chemical Inventory">
+      <i class="fas fa-vials"></i>
+      Chemical Inventory
+    </a>
+    <a href="#" class="card" title="Digital Logsheets">
+      <i class="fas fa-clipboard-list"></i>
+      Digital Logsheets
+    </a>
+    <a href="#" class="card" title="Tools">
+      <i class="fas fa-tools"></i>
+      Tools
+    </a>
+  </div>
+
+  <script>
+    function logoutUser() {
+      localStorage.removeItem('activeUser');
+      window.location.href = 'index.html';
+    }
+
+    window.onload = () => {
+      const active = localStorage.getItem('activeUser');
+      if (!active) {
+        window.location.href = 'index.html';
+      }
+    };
+  </script>
+</body>
+</html>
