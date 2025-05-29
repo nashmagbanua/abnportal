@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Utilities Portal</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: url('backgroundportal.png') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-box {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      color: white;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+      text-align: center;
+    }
+    .logo-title {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .logo-title img {
+      width: 40px;
+      height: 40px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    .link-btn {
+      margin-top: 10px;
+      display: block;
+      color: #00f;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    #signupModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+    }
+    #signupForm {
+      background: white; color: black;
+      width: 300px; margin: 100px auto;
+      padding: 20px; border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="logo-title">
+      <img src="abnlogo.png" alt="ABN Logo">
+      <div><strong>Utilities Portal</strong></div>
+    </div>
+
+    <select id="role">
+      <option value="admin">Admin</option>
+      <option value="mantech">Mantech</option>
+      <option value="opscrew">OpsCrew</option>
+    </select>
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="validateLogin()">Login</button>
+    <div class="link-btn" onclick="showSignup()">Wala ka pang account? Sign up</div>
+  </div>
+
+  <div id="signupModal">
+    <div id="signupForm">
+      <h3>Sign Up</h3>
+      <input type="text" id="newUser" placeholder="Username"><br>
+      <input type="password" id="newPass" placeholder="Password"><br>
+      <select id="newRole">
+        <option value="mantech">Mantech</option>
+        <option value="opscrew">OpsCrew</option>
+      </select><br>
+      <button onclick="registerUser()">Register</button>
+      <button onclick="hideSignup()">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0-PNkHDcLW356892joz-8KDVYRXQbShg",
+      authDomain: "abnportal-fb070.firebaseapp.com",
+      projectId: "abnportal-fb070",
+      storageBucket: "abnportal-fb070.appspot.com",
+      messagingSenderId: "124537892733",
+      appId: "1:124537892733:web:82725bb557f8521348a614"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    let loginAttempts = 0;
+
+    async function validateLogin() {
+      const role = document.getElementById('role').value.toLowerCase();
+      const password = document.getElementById('password').value;
+
+      if ((role === 'admin' && password === '1111') ||
+          (role === 'mantech' && password === '2222') ||
+          (role === 'opscrew' && password === '3333')) {
+        localStorage.setItem('activeUser', JSON.stringify({ role }));
+        window.location.href = role === 'admin' ? 'admin-panel.html' : 'dashboard.html';
+        return;
+      }
+
+      const usersRef = db.collection("users");
+      const query = await usersRef.where("pass", "==", password).where("role", "==", role).get();
+      if (!query.empty) {
+        localStorage.setItem('activeUser', JSON.stringify({ role }));
+        window.location.href = role === 'admin' ? 'admin-panel.html' : 'dashboard.html';
+      } else {
+        loginAttempts++;
+        alert("Maling password.");
+        if (loginAttempts >= 3) alert("3 wrong attempts. Contact admin.");
+      }
+    }
+
+    async function registerUser() {
+      const user = document.getElementById('newUser').value.trim();
+      const pass = document.getElementById('newPass').value;
+      const role = document.getElementById('newRole').value;
+
+      if (!user || !pass) return alert("Kumpletohin ang form.");
+      const docRef = db.collection("users").doc(user);
+      const doc = await docRef.get();
+      if (doc.exists) return alert("Username taken.");
+
+      await docRef.set({ user, pass, role });
+      alert("Registered! Login now.");
+      hideSignup();
+    }
+
+    function showSignup() {
+      document.getElementById('signupModal').style.display = 'block';
+    }
+    function hideSignup() {
+      document.getElementById('signupModal').style.display = 'none';
+    }
+
+    window.onload = () => {
+      const active = localStorage.getItem('activeUser');
+      if (active) {
+        const role = JSON.parse(active).role;
+        window.location.href = role === 'admin' ? 'admin-panel.html' : 'dashboard.html';
+      }
+    };
+  </script>
+</body>
+</html>
