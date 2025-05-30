@@ -1,0 +1,87 @@
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #0e1628;
+  color: white;
+  overflow-x: hidden;
+}
+
+.dashboard-header {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logout-btn {
+  background: #1e293b;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  border-radius: 10px;
+  padding: 5px 15px;
+  cursor: pointer;
+}
+
+.swiper-container {
+  width: 100%;
+  padding-top: 50px;
+  padding-bottom: 80px;
+}
+
+.swiper-slide {
+  background-size: cover;
+  background-position: center;
+  border-radius: 20px;
+  transition: transform 0.4s ease;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  height: 360px;
+  position: relative;
+}
+
+.swiper-slide::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.slide-content {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 1rem;
+  border-radius: 16px;
+  width: 80%;
+  text-align: center;
+  z-index: 10;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.slide-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+  animation: fadeInUp 0.7s ease-in-out both;
+}
+
+.slide-desc {
+  font-size: 1rem;
+  color: #cbd5e1;
+  animation: fadeInUp 0.9s ease-in-out both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ABN Portal Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="dashboard-header">
+    <h1>ABN Utilities Dashboard</h1>
+    <button class="logout-btn" onclick="window.location.href='index.html'">←</button>
+  </header>
+
+  <div class="swiper-container main-slides">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide" style="background-image: url('Image/boiler.jpeg');">
+        <div class="slide-content">
+          <h2 class="slide-title">Boiler</h2>
+          <p class="slide-desc">Monitor real-time efficiency and fuel metrics</p>
+        </div>
+      </div>
+      <div class="swiper-slide" style="background-image: url('Image/water_treatment.jpeg');">
+        <div class="slide-content">
+          <h2 class="slide-title">Water Treatment</h2>
+          <p class="slide-desc">Ensure clean and treated water supply</p>
+        </div>
+      </div>
+      <div class="swiper-slide" style="background-image: url('Image/waste_water.jpeg');">
+        <div class="slide-content">
+          <h2 class="slide-title">Waste Water</h2>
+          <p class="slide-desc">Manage wastewater processing</p>
+        </div>
+      </div>
+      <div class="swiper-slide" style="background-image: url('Image/pm_work_order.jpeg');">
+        <div class="slide-content">
+          <h2 class="slide-title">PM Work Order</h2>
+          <p class="slide-desc">Create and manage maintenance</p>
+        </div>
+      </div>
+      <div class="swiper-slide" style="background-image: url('Image/chemical_inventory.jpeg');">
+        <div class="slide-content">
+          <h2 class="slide-title">Chemical Inventory</h2>
+          <p class="slide-desc">Track stock and usage</p>
+        </div>
+      </div>
+      <div class="swiper-slide" style="background-image: url('Image/digital_logsheets.jpeg');">
+        <div class="slide-content">
+          <h2 class="slide-title">Digital Logsheets</h2>
+          <p class="slide-desc">Submit and review records</p>
+        </div>
+      </div>
+      <div class="swiper-slide" style="background-image: url('Image/tools.jpeg');">
+        <div class="slide-content">
+          <h2 class="slide-title">Tools</h2>
+          <p class="slide-desc">Utility tools access</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+  <script>
+    const swiper = new Swiper('.swiper-container', {
+      slidesPerView: 1.2,
+      centeredSlides: true,
+      spaceBetween: 30,
+      loop: true,
+    });
+  </script>
+</body>
+</html>
