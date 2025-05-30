@@ -10,8 +10,8 @@ body {
 .dashboard-header {
   padding: 20px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column; /* ← ito ang key sa vertical stacking */
+  align-items: flex-start; /* optional: pwede mong gawing center kung gusto gitna */
 }
 
 .logout-btn {
