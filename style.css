@@ -82,4 +82,29 @@ body {
   }
   to {
     opacity: 1;
-    transform: translateY(
+    transform: translateY(0);
+  }
+}
+
+/* Greeting Message Style */
+.greeting-message {
+  font-size: 1.1rem;
+  text-align: center;
+  color: #ffffff;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+  animation: fadeInDown 0.6s ease-in-out both;
+}
+
+/* Greeting fade down animation */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
