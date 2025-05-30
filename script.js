@@ -33,3 +33,16 @@ const swiper = new Swiper('.swiper', {
     transform: translateY(0);
   }
 }
+const greetingEl = document.getElementById("greeting-message");
+const hour = new Date().getHours();
+let greeting = "";
+
+if (hour < 12) {
+  greeting = "Good morning, sir! 👋";
+} else if (hour < 18) {
+  greeting = "Good afternoon, sir! 👋";
+} else {
+  greeting = "Good evening, sir! 👋";
+}
+
+greetingEl.textContent = greeting;
