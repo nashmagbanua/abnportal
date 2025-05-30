@@ -1,0 +1,129 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+html, body {
+  height: 100%;
+  background: #0f172a;
+  color: white;
+  overflow: hidden;
+}
+
+.dashboard-header {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: white;
+  cursor: pointer;
+}
+
+.background-blur {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-position: center;
+  background-size: cover;
+  filter: blur(10px) brightness(0.7);
+  z-index: -1;
+}
+
+.swiper {
+  height: 100vh;
+  padding-top: 80px;
+  padding-bottom: 40px;
+}
+
+.swiper-wrapper {
+  align-items: center;
+}
+
+.swiper-slide {
+  width: 80%;
+  max-width: 360px;
+  height: 80%;
+  background-size: cover !important;
+  background-position: center !important;
+  border-radius: 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  margin: 0 auto;
+}
+
+.swiper-slide-active {
+  transform: scale(1.05);
+  box-shadow: 0 15px 40px rgba(255,255,255,0.1);
+}
+
+.slide-info {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  border-radius: 15px;
+  padding: 1rem;
+  margin-bottom: 30px;
+  width: 90%;
+  text-align: center;
+}
+
+.slide-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.slide-desc {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-top: 0.5rem;
+}
+
+.swiper-pagination-bullet {
+  background: white;
+  width: 12px;
+  height: 12px;
+}
+
+@media (min-width: 768px) {
+  .swiper-slide {
+    width: 400px;
+  }
+
+  .slide-title {
+    font-size: 2rem;
+  }
+
+  .slide-desc {
+    font-size: 1.2rem;
+  }
+}
+
+/* Glow effect for active slide */
+.swiper-slide-active {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3),
+              0 0 40px rgba(0, 255, 255, 0.2),
+              0 0 60px rgba(0, 255, 255, 0.1);
+}
+
+/* Hover or tap effect to highlight card */
+.swiper-slide:active,
+.swiper-slide:focus,
+.swiper-slide:hover {
+  outline: 2px solid rgba(0, 255, 255, 0.6);
+  outline-offset: -4px;
+  transition: outline 0.2s ease;
+}
