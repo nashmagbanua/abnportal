@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ABN Portal Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="dashboard-header">
+    <h1>ABN Utilities Dashboard</h1>
+    <button class="logout-btn" onclick="window.location.href='index.html'">←</button>
+  </header>
+
+  <div class="background-blur" id="background-blur"></div>
+
+  <div class="main-slides swiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide">
+        <div class="slide-content">
+          <h2 class="slide-title">Boiler</h2>
+          <p class="slide-desc">Monitor real-time efficiency and fuel metrics</p>
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <div class="slide-content">
+          <h2 class="slide-title">Water Treatment</h2>
+          <p class="slide-desc">Ensure clean and treated water supply</p>
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <div class="slide-content">
+          <h2 class="slide-title">Waste Water</h2>
+          <p class="slide-desc">Track and manage wastewater processing</p>
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <div class="slide-content">
+          <h2 class="slide-title">PM Work Order</h2>
+          <p class="slide-desc">Create and manage preventive maintenance</p>
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <div class="slide-content">
+          <h2 class="slide-title">Chemical Inventory</h2>
+          <p class="slide-desc">Track chemical stock and usage</p>
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <div class="slide-content">
+          <h2 class="slide-title">Digital Logsheets</h2>
+          <p class="slide-desc">Submit and review operation records</p>
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <div class="slide-content">
+          <h2 class="slide-title">Tools</h2>
+          <p class="slide-desc">Access calculation and utility tools</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+  <script>
+    const swiper = new Swiper('.swiper', {
+      effect: 'slide',
+      centeredSlides: true,
+      slidesPerView: 'auto',
+      spaceBetween: 30,
+      loop: true,
+      autoplay: {
+        delay: 4000,
+        disableOnInteraction: false
+      },
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+      },
+    });
+  </script>
+</body>
+</html>
