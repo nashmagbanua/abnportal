@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABN Portal Slider Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="dashboard-header">
+    <h1>ABN Utilities Dashboard</h1>
+    <button class="logout-btn" onclick="window.location.href='index.html'">⟵</button>
+  </header>
+
+  <div class="background-blur" id="background-blur"></div>
+
+  <div class="main-slides swiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide" style="background-image: url('Image/boiler.jpg')">
+        <div class="slide-info">
+          <h2 class="slide-title">Boiler</h2>
+          <p class="slide-desc">Monitor real-time efficiency and fuel metrics</p>
+        </div>
+      </div>
+      <div class="swiper-slide" style="background-image: url('Image/water treatment.jpg')">
+        <div class="slide-info">
+          <h2 class="slide-title">Water Treatment</h2>
+          <p class="slide-desc">Control water quality and supply systems</p>
+        </div>
+      </div>
+      <div class="swiper-slide" style="background-image: url('Image/waste water.jpg')">
+        <div class="slide-info">
+          <h2 class="slide-title">Waste Water</h2>
+          <p class="slide-desc">Oversee treatment and discharge processes</p>
+        </div>
+      </div>
+      <div class="swiper-slide" style="background-image: url('Image/pm work order.jpg')">
+        <div class="slide-info">
+          <h2 class="slide-title">PM Work Order</h2>
+          <p class="slide-desc">Schedule and manage preventive maintenance</p>
+        </div>
+      </div>
+      <div class="swiper-slide" style="background-image: url('Image/chemical.jpg')">
+        <div class="slide-info">
+          <h2 class="slide-title">Chemical Inventory</h2>
+          <p class="slide-desc">Track chemical stocks and usage logs</p>
+        </div>
+      </div>
+      <div class="swiper-slide" style="background-image: url('Image/digital tools.jpg')">
+        <div class="slide-info">
+          <h2 class="slide-title">Digital Logsheets</h2>
+          <p class="slide-desc">Submit and review operation records</p>
+        </div>
+      </div>
+      <div class="swiper-slide" style="background-image: url('Image/tools.jpg')">
+        <div class="slide-info">
+          <h2 class="slide-title">Tools</h2>
+          <p class="slide-desc">Use engineering utilities and calculators</p>
+        </div>
+      </div>
+    </div>
+    <div class="swiper-pagination"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
