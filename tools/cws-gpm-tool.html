@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CWS GPM Tool</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.0.0/remixicon.min.css" rel="stylesheet">
+  <style>
+    .popup-overlay {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<!-- Popup -->
+<div id="popup-overlay" class="fixed inset-0 flex items-center justify-center z-50 popup-overlay">
+  <div class="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">
+    <h2 class="text-xl font-bold mb-4">Operator Info</h2>
+    <div class="mb-4">
+      <label class="block mb-1 font-medium">Operator Name</label>
+      <input id="popup-operator" type="text" placeholder="Enter operator name" class="w-full px-3 py-2 border rounded-md" />
+    </div>
+    <h2 class="text-lg font-bold mb-2">Deepwell Frequency</h2>
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block mb-1">Deepwell 9</label>
+        <input id="popup-dw9" type="text" placeholder="Hz / N/A" class="w-full px-3 py-2 border rounded-md" />
+      </div>
+      <div>
+        <label class="block mb-1">Deepwell 10</label>
+        <input id="popup-dw10" type="text" placeholder="Hz / N/A" class="w-full px-3 py-2 border rounded-md" />
+      </div>
+    </div>
+    <button onclick="savePopupInfo()" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Save</button>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="bg-blue-800 text-white py-4 text-center text-lg font-semibold">CWS GPM Tool</header>
+
+<!-- Main Content -->
+<main id="main-ui" class="p-4 space-y-6" style="display:none;">
+  <!-- Stopwatch UI -->
+  <section class="bg-white p-4 rounded shadow">
+    <h2 class="text-lg font-semibold mb-2">Stopwatch</h2>
+    <div class="text-center text-3xl font-bold mb-4" id="stopwatch-display">00:00</div>
+    <div class="flex gap-2">
+      <button id="start-btn" class="flex-1 bg-green-500 text-white py-2 rounded">Start</button>
+      <button id="stop-btn" class="flex-1 bg-red-500 text-white py-2 rounded" disabled>Stop</button>
+      <button id="reset-btn" class="flex-1 bg-gray-500 text-white py-2 rounded" disabled>Reset</button>
+    </div>
+    <div class="mt-4 text-center">
+      <p class="text-sm">Formula: GPM = 1 / seconds × 3600 × 4.4</p>
+      <p class="text-xl mt-1">GPM: <span class="text-green-600 font-bold" id="gpm-result">0.00</span></p>
+    </div>
+  </section>
+
+  <!-- Logs -->
+  <section class="bg-white p-4 rounded shadow">
+    <h2 class="text-lg font-semibold mb-2">Activity Logs</h2>
+    <div id="logs-container" class="space-y-4 text-sm text-gray-700">
+      <p class="text-gray-400">No logs yet.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+  let operatorName = '', deepwell9 = '', deepwell10 = '';
+  let startTime, elapsedTime = 0, interval;
+
+  function savePopupInfo() {
+    operatorName = document.getElementById('popup-operator').value.trim();
+    deepwell9 = formatHz(document.getElementById('popup-dw9').value.trim());
+    deepwell10 = formatHz(document.getElementById('popup-dw10').value.trim());
+
+    if (!operatorName) return alert("Please enter operator name.");
+
+    document.getElementById('popup-overlay').style.display = "none";
+    document.getElementById('main-ui').style.display = "block";
+  }
+
+  function formatHz(val) {
+    if (val.toLowerCase() === 'n/a') return 'N/A';
+    return /hz$/i.test(val) ? val : val + 'Hz';
+  }
+
+  const display = document.getElementById('stopwatch-display');
+  const gpmDisplay = document.getElementById('gpm-result');
+  const logsContainer = document.getElementById('logs-container');
+
+  document.getElementById('start-btn').addEventListener('click', () => {
+    startTime = Date.now() - elapsedTime;
+    interval = setInterval(() => {
+      elapsedTime = Date.now() - startTime;
+      updateStopwatch();
+    }, 100);
+    toggleButtons(true);
+  });
+
+  document.getElementById('stop-btn').addEventListener('click', () => {
+    clearInterval(interval);
+    logData();
+    toggleButtons(false);
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    clearInterval(interval);
+    elapsedTime = 0;
+    updateStopwatch();
+    toggleButtons(false);
+  });
+
+  function toggleButtons(running) {
+    document.getElementById('start-btn').disabled = running;
+    document.getElementById('stop-btn').disabled = !running;
+    document.getElementById('reset-btn').disabled = !running;
+  }
+
+  function updateStopwatch() {
+    const minutes = Math.floor(elapsedTime / 60000);
+    const seconds = Math.floor((elapsedTime % 60000) / 1000);
+    display.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    if (elapsedTime > 0) {
+      const gpm = (1 / (elapsedTime / 1000)) * 3600 * 4.4;
+      gpmDisplay.textContent = gpm.toFixed(2);
+    }
+  }
+
+  function logData() {
+    const timestamp = new Date().toLocaleString();
+    const gpm = gpmDisplay.textContent;
+    const time = display.textContent;
+
+    const logEntry = document.createElement('div');
+    logEntry.className = "border-t pt-2";
+    logEntry.innerHTML = `
+      <div class="flex justify-between"><span>Operator:</span><span>${operatorName}</span></div>
+      <div class="flex justify-between"><span>Deepwell 9:</span><span>${deepwell9}</span></div>
+      <div class="flex justify-between"><span>Deepwell 10:</span><span>${deepwell10}</span></div>
+      <div class="flex justify-between"><span>Timestamp:</span><span>${timestamp}</span></div>
+      <div class="flex justify-between"><span>GPM:</span><span class="text-green-600 font-bold">${gpm}</span></div>
+      <div class="flex justify-between"><span>Duration:</span><span>${time}</span></div>
+    `;
+    if (logsContainer.innerHTML.includes('No logs yet.')) logsContainer.innerHTML = '';
+    logsContainer.prepend(logEntry);
+  }
+</script>
+</body>
+</html>
