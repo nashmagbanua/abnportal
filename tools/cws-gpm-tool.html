@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CWS GPM Tool</title>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .popup {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .popup-content {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .popup-content input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: none;
+    }
+
+    .popup-content button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border: none;
+      background: #007bff;
+      color: white;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .main-ui {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .stopwatch-box {
+      display: flex;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 12px;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .circle {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #004d66;
+    }
+
+    .wave {
+      position: absolute;
+      bottom: 0;
+      width: 200%;
+      height: 100%;
+      background: rgba(0, 191, 255, 0.5);
+      border-radius: 40%;
+      animation: waveAnim 4s linear infinite;
+    }
+
+    @keyframes waveAnim {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .timer-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+      font-weight: bold;
+      color: #fff;
+      z-index: 2;
+    }
+
+    .formula {
+      color: #ccc;
+      font-size: 14px;
+      background: #333;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 180px;
+    }
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .controls button {
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .start-btn { background: #28a745; color: white; }
+    .stop-btn { background: #dc3545; color: white; }
+    .reset-btn { background: #6c757d; color: white; }
+
+    .logs {
+      width: 100%;
+      max-width: 500px;
+      margin-top: 30px;
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .gpm {
+      color: #00ff88;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="popup" id="popup">
+  <div class="popup-content">
+    <h2>Operator Info</h2>
+    <input id="operator" placeholder="Enter operator name" />
+    <input id="dw9" placeholder="Deepwell 9 Hz / N/A" />
+    <input id="dw10" placeholder="Deepwell 10 Hz / N/A" />
+    <button onclick="saveInfo()">Save</button>
+  </div>
+</div>
+
+<div class="main-ui" id="mainUI">
+  <div class="stopwatch-box">
+    <div class="circle">
+      <div class="wave"></div>
+      <div class="timer-text" id="timer">00:00.0</div>
+    </div>
+    <div class="formula">
+      <p>Formula: GPM = 1 / sec<br>× 3600 × 4.4</p>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="start-btn" onclick="start()">Start</button>
+    <button class="stop-btn" onclick="stop()">Stop</button>
+    <button class="reset-btn" onclick="reset()">Reset</button>
+  </div>
+
+  <div class="logs" id="logs"></div>
+</div>
+
+<script>
+  let operatorName = '', dw9 = '', dw10 = '';
+  let timer, running = false, startTime, elapsed = 0;
+
+  function saveInfo() {
+    operatorName = document.getElementById('operator').value;
+    dw9 = document.getElementById('dw9').value;
+    dw10 = document.getElementById('dw10').value;
+    if (!operatorName) return;
+
+    document.getElementById('popup').style.display = 'none';
+    document.getElementById('mainUI').style.display = 'flex';
+  }
+
+  function updateTimer() {
+    const now = Date.now();
+    elapsed = now - startTime;
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    const ms = Math.floor((elapsed % 1000) / 100);
+    document.getElementById('timer').textContent =
+      `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${ms}`;
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    startTime = Date.now() - elapsed;
+    timer = setInterval(updateTimer, 100);
+  }
+
+  function stop() {
+    if (!running) return;
+    clearInterval(timer);
+    running = false;
+    logResult();
+  }
+
+  function reset() {
+    clearInterval(timer);
+    running = false;
+    elapsed = 0;
+    document.getElementById('timer').textContent = '00:00.0';
+  }
+
+  function logResult() {
+    const duration = document.getElementById('timer').textContent;
+    const seconds = elapsed / 1000;
+    const gpm = (1 / seconds * 3600 * 4.4).toFixed(2);
+    const time = new Date().toLocaleString();
+    const dw9Label = dw9.toLowerCase() === 'n/a' ? 'N/A' : `${dw9}Hz`;
+    const dw10Label = dw10.toLowerCase() === 'n/a' ? 'N/A' : `${dw10}Hz`;
+
+    const log = `
+      <p><strong>${operatorName}</strong> | ${time}</p>
+      <p>Deepwell 9: ${dw9Label} | Deepwell 10: ${dw10Label}</p>
+      <p class="gpm">GPM: ${gpm} | Duration: ${duration}</p>
+      <hr />
+    `;
+    document.getElementById('logs').innerHTML = log + document.getElementById('logs').innerHTML;
+  }
+</script>
+
+</body>
+</html>
