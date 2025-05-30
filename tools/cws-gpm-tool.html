@@ -5,66 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CWS GPM Calculator</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
-<script>tailwind.config={theme:{extend:{colors:{primary:'#0066CC',secondary:'#00A3E0'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#0066CC',
+        secondary: '#00A3E0'
+      },
+      borderRadius: {
+        button: '8px'
+      }
+    }
+  }
+};
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
 <style>
-:where([class^="ri-"])::before { content: "\f3c2"; }
 body {
-font-family: 'Roboto', sans-serif;
-transition: background 0.3s, color 0.3s;
+  font-family: 'Roboto', sans-serif;
+  transition: background 0.3s, color 0.3s;
 }
-.water-fill {
-position: absolute;
-bottom: 0;
-left: 0;
-width: 100%;
-background: linear-gradient(to bottom, #00A3E0, #0066CC);
-border-bottom-left-radius: 100%;
-border-bottom-right-radius: 100%;
-transition: height 0.3s ease;
-overflow: hidden;
-}
-.wave {
-position: absolute;
-width: 200%;
-height: 100%;
-background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
-animation: wave 3s linear infinite;
-transform-origin: 50% 50%;
-}
-.wave:nth-child(2) {
-animation-delay: -1.5s;
-opacity: 0.3;
-}
-.wave:nth-child(3) {
-animation-delay: -2.5s;
-opacity: 0.2;
-}
-@keyframes wave {
-0% { transform: translateX(-50%) rotate(0deg); }
-50% { transform: translateX(-30%) rotate(180deg); }
-100% { transform: translateX(-50%) rotate(360deg); }
-}
-.raindrop {
-position: absolute;
-width: 2px;
-height: 8px;
-background: rgba(255, 255, 255, 0.6);
-border-radius: 50%;
-animation: fall linear infinite;
-}
-@keyframes fall {
-0% { transform: translateY(-120%); opacity: 1; }
-100% { transform: translateY(120%); opacity: 0; }
-}
-.log-item:not(:last-child) {
-border-bottom: 1px solid #e5e7eb;
-}
-/* Dark Mode Styles */
 body.dark {
   background-color: #1f2937;
   color: #f9fafb;
@@ -81,17 +43,50 @@ body.dark .text-gray-500 {
 body.dark .bg-gray-100 {
   background-color: #4b5563 !important;
 }
-body.dark input,
-body.dark select {
+body.dark input {
   background-color: #4b5563 !important;
   color: #f9fafb;
   border-color: #6b7280;
+}
+.water-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to bottom, #00A3E0, #0066CC);
+  border-bottom-left-radius: 100%;
+  border-bottom-right-radius: 100%;
+  transition: height 0.3s ease;
+  overflow: hidden;
+}
+.wave {
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+  animation: wave 3s linear infinite;
+  transform-origin: 50% 50%;
+}
+.wave:nth-child(2) {
+  animation-delay: -1.5s;
+  opacity: 0.3;
+}
+.wave:nth-child(3) {
+  animation-delay: -2.5s;
+  opacity: 0.2;
+}
+@keyframes wave {
+  0% { transform: translateX(-50%) rotate(0deg); }
+  50% { transform: translateX(-30%) rotate(180deg); }
+  100% { transform: translateX(-50%) rotate(360deg); }
+}
+.log-item:not(:last-child) {
+  border-bottom: 1px solid #e5e7eb;
 }
 </style>
 </head>
 <body class="bg-gray-50">
 <div class="max-w-[375px] mx-auto min-h-[762px] pb-20 relative">
-<!-- Header -->
 <header class="bg-primary text-white py-4 px-4 fixed w-full top-0 z-10 shadow-md">
   <div class="flex justify-between items-center">
     <h1 class="text-xl font-semibold text-center flex-1 text-center">CWS GPM Calculator</h1>
@@ -101,33 +96,165 @@ body.dark select {
   </div>
 </header>
 <main class="pt-16 px-4 pb-4">
-<!-- content continues unchanged -->
+  <div class="bg-white rounded-lg shadow-sm p-4 mt-4">
+    <h2 class="text-lg font-medium mb-3">Operator Info</h2>
+    <div class="space-y-3">
+      <div>
+        <label for="operator-name" class="block text-sm font-medium text-gray-700 mb-1">Operator Name</label>
+        <input type="text" id="operator-name" class="w-full px-3 py-2 border border-gray-300 rounded-button focus:outline-none focus:ring-1 focus:ring-primary" placeholder="Enter operator name">
+      </div>
+      <button id="save-info" class="w-full bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-button flex items-center justify-center">
+        <i class="ri-save-line mr-1"></i> Save Information
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm p-4 mt-4">
+    <h2 class="text-lg font-medium mb-3">Deepwell Frequency</h2>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Deepwell 9</label>
+        <input type="text" id="deepwell-9" class="w-full px-3 py-2 border border-gray-300 rounded-button focus:outline-none focus:ring-1 focus:ring-primary" placeholder="Enter frequency">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Deepwell 10</label>
+        <input type="text" id="deepwell-10" class="w-full px-3 py-2 border border-gray-300 rounded-button focus:outline-none focus:ring-1 focus:ring-primary" placeholder="Enter frequency">
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm p-4 mt-4">
+    <h2 class="text-lg font-medium mb-3">Stopwatch</h2>
+    <div class="relative w-48 h-48 mx-auto mb-4 rounded-full border-4 border-gray-200 flex items-center justify-center overflow-hidden">
+      <div id="water-fill" class="water-fill" style="height: 0%">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+      </div>
+      <div id="stopwatch-display" class="text-2xl font-bold z-10">00:00</div>
+    </div>
+    <div class="flex justify-between gap-2 mb-4">
+      <button id="start-btn" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-button">
+        <i class="ri-play-fill mr-1"></i> Start
+      </button>
+      <button id="stop-btn" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-button" disabled>
+        <i class="ri-stop-fill mr-1"></i> Stop
+      </button>
+      <button id="reset-btn" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-button" disabled>
+        <i class="ri-refresh-line mr-1"></i> Reset
+      </button>
+    </div>
+    <div class="bg-gray-100 p-3 rounded-lg">
+      <div class="text-sm text-gray-600 mb-1">Formula: GPM = 1/second × 3600 × 4.4</div>
+      <div class="flex items-center justify-between">
+        <span class="text-lg font-medium">Current GPM:</span>
+        <span id="gpm-result" class="text-2xl font-bold text-primary">0.00</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm p-4 mt-4">
+    <div class="flex justify-between items-center mb-3">
+      <h2 class="text-lg font-medium">Activity Logs</h2>
+      <button id="send-btn" class="bg-secondary hover:bg-secondary/90 text-white py-1 px-3 rounded-button flex items-center justify-center">
+        <i class="ri-send-plane-fill mr-1"></i> Send
+      </button>
+    </div>
+    <div id="logs-container" class="max-h-[200px] overflow-y-auto">
+      <div class="text-gray-500 text-center py-4 text-sm">No logs yet. Start the stopwatch to record data.</div>
+    </div>
+  </div>
 </main>
 </div>
-<!-- Toast Notification -->
-<div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg opacity-0 transition-opacity duration-300 z-50 max-w-[300px] text-center"></div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+  const startBtn = document.getElementById('start-btn');
+  const stopBtn = document.getElementById('stop-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const stopwatchDisplay = document.getElementById('stopwatch-display');
+  const gpmResult = document.getElementById('gpm-result');
+  const waterFill = document.getElementById('water-fill');
+  const logsContainer = document.getElementById('logs-container');
+  const operatorInput = document.getElementById('operator-name');
+
+  let startTime, elapsedTime = 0, timerInterval;
+
+  function updateDisplay() {
+    const seconds = Math.floor(elapsedTime / 1000) % 60;
+    const minutes = Math.floor(elapsedTime / 60000);
+    stopwatchDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    const fillPercent = Math.min(100, (elapsedTime / (5 * 60000)) * 100);
+    waterFill.style.height = `${fillPercent}%`;
+    if (elapsedTime > 0) {
+      const gpm = (1 / (elapsedTime / 1000)) * 3600 * 4.4;
+      gpmResult.textContent = gpm.toFixed(2);
+    }
+  }
+
+  startBtn.onclick = () => {
+    if (!operatorInput.value.trim()) return alert("Enter operator name!");
+    startTime = Date.now() - elapsedTime;
+    timerInterval = setInterval(() => {
+      elapsedTime = Date.now() - startTime;
+      updateDisplay();
+    }, 100);
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    resetBtn.disabled = true;
+  };
+
+  stopBtn.onclick = () => {
+    clearInterval(timerInterval);
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    resetBtn.disabled = false;
+
+    const log = document.createElement('div');
+    log.className = 'log-item py-2';
+    log.innerHTML = `
+      <div class="flex justify-between mb-1">
+        <span class="font-medium">GPM Reading</span>
+        <span class="text-sm text-gray-500">${new Date().toLocaleString()}</span>
+      </div>
+      <div class="text-sm">Operator: ${operatorInput.value}</div>
+      <div class="text-sm">Deepwell 9: ${document.getElementById('deepwell-9').value}Hz</div>
+      <div class="text-sm">Deepwell 10: ${document.getElementById('deepwell-10').value}Hz</div>
+      <div class="flex justify-between mt-1">
+        <span class="text-sm">Duration: ${stopwatchDisplay.textContent}</span>
+        <span class="font-medium text-primary">GPM: ${gpmResult.textContent}</span>
+      </div>`;
+    if (logsContainer.querySelector('.text-gray-500')) logsContainer.innerHTML = '';
+    logsContainer.prepend(log);
+  };
+
+  resetBtn.onclick = () => {
+    clearInterval(timerInterval);
+    elapsedTime = 0;
+    updateDisplay();
+    waterFill.style.height = '0%';
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    resetBtn.disabled = true;
+    gpmResult.textContent = '0.00';
+  };
+
+  // Dark Mode Toggle
   const toggleBtn = document.getElementById('dark-toggle');
   const icon = document.getElementById('dark-icon');
   function setDarkMode(enabled) {
     if (enabled) {
       document.body.classList.add('dark');
-      icon.classList.remove('ri-moon-fill');
-      icon.classList.add('ri-sun-fill');
+      icon.classList.replace('ri-moon-fill', 'ri-sun-fill');
     } else {
       document.body.classList.remove('dark');
-      icon.classList.remove('ri-sun-fill');
-      icon.classList.add('ri-moon-fill');
+      icon.classList.replace('ri-sun-fill', 'ri-moon-fill');
     }
     localStorage.setItem('darkMode', enabled);
   }
   const darkPref = localStorage.getItem('darkMode') === 'true';
   setDarkMode(darkPref);
-  toggleBtn.addEventListener('click', function () {
-    const isDark = document.body.classList.contains('dark');
-    setDarkMode(!isDark);
-  });
+  toggleBtn.onclick = () => setDarkMode(!document.body.classList.contains('dark'));
 });
 </script>
 </body>
