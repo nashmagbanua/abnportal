@@ -72,6 +72,21 @@
       spaceBetween: 30,
       loop: true,
     });
+    <script>
+  const greetingElement = document.getElementById('greeting');
+  const hour = new Date().getHours();
+  let greetingText = "Hi, welcome sir! 👋";
+
+  if (hour < 12) {
+    greetingText = "Good morning sir! ☀️";
+  } else if (hour < 18) {
+    greetingText = "Good afternoon sir! 🌤️";
+  } else {
+    greetingText = "Good evening sir! 🌙";
+  }
+
+  greetingElement.textContent = greetingText;
+</script>
   </script>
 </body>
 </html>
