@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemical Inventory System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="chemical-inventory.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="flex">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar bg-indigo-800 text-white w-64 min-h-screen p-4 no-print">
+            <div class="flex items-center justify-between mb-8">
+                <h1 class="text-xl font-bold">ChemInventory</h1>
+                <button id="toggleSidebar" class="lg:hidden">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <div class="text-xs text-indigo-200 uppercase font-semibold mb-2">Dashboard</div>
+                <div class="sidebar-item active flex items-center p-3 rounded cursor-pointer" data-target="dashboard">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>Overview</span>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <div class="text-xs text-indigo-200 uppercase font-semibold mb-2">Inventory</div>
+                <div class="sidebar-item flex items-center p-3 rounded cursor-pointer" data-target="inventory">
+                    <i class="fas fa-flask mr-3"></i>
+                    <span>Chemicals</span>
+                </div>
+                <div class="sidebar-item flex items-center p-3 rounded cursor-pointer" data-target="usage">
+                    <i class="fas fa-history mr-3"></i>
+                    <span>Usage History</span>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <div class="text-xs text-indigo-200 uppercase font-semibold mb-2">Reports</div>
+                <div class="sidebar-item flex items-center p-3 rounded cursor-pointer" data-target="analytics">
+                    <i class="fas fa-chart-bar mr-3"></i>
+                    <span>Analytics</span>
+                </div>
+                <div class="sidebar-item flex items-center p-3 rounded cursor-pointer" data-target="alerts">
+                    <i class="fas fa-exclamation-triangle mr-3"></i>
+                    <span>Alerts</span>
+                    <span id="alertCount" class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <div class="text-xs text-indigo-200 uppercase font-semibold mb-2">Settings</div>
+                <div class="sidebar-item flex items-center p-3 rounded cursor-pointer" data-target="settings">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>Preferences</span>
+                </div>
+            </div>
+            
+            <div class="mt-auto pt-6">
+                <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center">
+                        <i class="fas fa-moon mr-2"></i>
+                        <span>Dark Mode</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1">
+            <!-- Top Navigation -->
+            <nav class="bg-white shadow-sm p-4 flex justify-between items-center no-print">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="mr-4">
+                        <i class="fas fa-bars text-gray-600"></i>
+                    </button>
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Search chemicals..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="flex items-center">
+                    <button id="exportBtn" class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg mr-3 hover:bg-indigo-200 transition">
+                        <i class="fas fa-file-export mr-2"></i>
+                        Export
+                    </button>
+                    <button id="printBtn" class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg mr-3 hover:bg-indigo-200 transition">
+                        <i class="fas fa-print mr-2"></i>
+                        Print
+                    </button>
+                    <div class="relative">
+                        <button id="notificationBtn" class="relative p-2 rounded-full hover:bg-gray-100 transition">
+                            <i class="fas fa-bell text-gray-600"></i>
+                            <span id="notificationBadge" class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">0</span>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Content Area -->
+            <div class="container mx-auto p-6">
+                <!-- Alert Container -->
+                <div id="alertContainer" class="fixed top-4 right-4 z-50 w-80"></div>
+                
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="page active">
+                    <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="card bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="rounded-full bg-blue-100 p-3 mr-4">
+                                    <i class="fas fa-flask text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-gray-500 text-sm">Total Chemicals</h3>
+                                    <p id="totalChemicals" class="text-2xl font-bold">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="rounded-full bg-amber-100 p-3 mr-4">
+                                    <i class="fas fa-calendar-times text-amber-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-gray-500 text-sm">Near Expiry</h3>
+                                    <p id="nearExpiryCount" class="text-2xl font-bold">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="rounded-full bg-red-100 p-3 mr-4">
+                                    <i class="fas fa-exclamation-circle text-red-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-gray-500 text-sm">Low Stock</h3>
+                                    <p id="lowStockCount" class="text-2xl font-bold">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-semibold">Recent Activity</h3>
+                                    <button class="text-indigo-600 text-sm hover:underline" data-target="usage">View All</button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full">
+                                        <thead>
+                                            <tr class="text-left text-gray-500 text-sm border-b">
+                                                <th class="pb-3">Chemical</th>
+                                                <th class="pb-3">Date</th>
+                                                <th class="pb-3">Quantity</th>
+                                                <th class="pb-3">Person</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recentActivityTable">
+                                            <!-- Recent activity will be populated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg shadow p-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-semibold">Quick Actions</h3>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <button id="addChemicalBtn" class="flex items-center justify-center bg-indigo-50 text-indigo-700 p-4 rounded-lg hover:bg-indigo-100 transition">
+                                        <i class="fas fa-plus-circle mr-2"></i>
+                                        Add New Chemical
+                                    </button>
+                                    <button id="updateInventoryBtn" class="flex items-center justify-center bg-green-50 text-green-700 p-4 rounded-lg hover:bg-green-100 transition">
+                                        <i class="fas fa-edit mr-2"></i>
+                                        Update Inventory
+                                    </button>
+                                    <button id="viewAlertsBtn" class="flex items-center justify-center bg-amber-50 text-amber-700 p-4 rounded-lg hover:bg-amber-100 transition">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                                        View Alerts
+                                    </button>
+                                    <button id="generateReportBtn" class="flex items-center justify-center bg-blue-50 text-blue-700 p-4 rounded-lg hover:bg-blue-100 transition">
+                                        <i class="fas fa-file-alt mr-2"></i>
+                                        Generate Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lg:col-span-1">
+                            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4">Inventory Status</h3>
+                                <div id="inventoryStatusChart" class="h-64">
+                                    <canvas id="inventoryChart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg shadow p-6">
+                                <h3 class="text-lg font-semibold mb-4">Expiring Soon</h3>
+                                <div id="expiringSoonList">
+                                    <!-- Expiring soon items will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inventory Section -->
+                <div id="inventory" class="page hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Chemical Inventory</h2>
+                        <button id="addChemicalBtn2" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                            <i class="fas fa-plus mr-2"></i>
+                            Add Chemical
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                        <div class="p-4 border-b flex flex-wrap items-center justify-between gap-4">
+                            <div class="flex items-center">
+                                <div class="relative mr-4">
+                                    <input type="text" id="inventorySearch" placeholder="Search chemicals..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                </div>
+                                <select id="locationFilter" class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">All Locations</option>
+                                    <option value="Lab A">Lab A</option>
+                                    <option value="Lab B">Lab B</option>
+                                    <option value="Storage Room">Storage Room</option>
+                                    <option value="Refrigerator">Refrigerator</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button id="bulkActionBtn" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition">
+                                    <i class="fas fa-cog mr-2"></i>
+                                    Bulk Actions
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="bg-gray-50 text-left text-gray-600 text-sm">
+                                        <th class="py-3 px-4">
+                                            <input type="checkbox" id="selectAllChemicals" class="rounded text-indigo-600">
+                                        </th>
+                                        <th class="py-3 px-4">Name</th>
+                                        <th class="py-3 px-4">CAS Number</th>
+                                        <th class="py-3 px-4">Current Quantity</th>
+                                        <th class="py-3 px-4">Location</th>
+                                        <th class="py-3 px-4">Expiry Date</th>
+                                        <th class="py-3 px-4">Status</th>
+                                        <th class="py-3 px-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="chemicalsTable">
+                                    <!-- Chemicals will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Usage History Section -->
+                <div id="usage" class="page hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Usage History</h2>
+                        <button id="logUsageBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                            <i class="fas fa-plus mr-2"></i>
+                            Log Usage
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                        <div class="p-4 border-b flex flex-wrap items-center justify-between gap-4">
+                            <div class="flex items-center">
+                                <div class="relative mr-4">
+                                    <input type="text" id="usageSearch" placeholder="Search usage records..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                </div>
+                                <div class="flex items-center">
+                                    <label class="mr-2">From:</label>
+                                    <input type="date" id="usageFromDate" class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 mr-4">
+                                    <label class="mr-2">To:</label>
+                                    <input type="date" id="usageToDate" class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                            </div>
+                            <div>
+                                <button id="exportUsageBtn" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition">
+                                    <i class="fas fa-file-export mr-2"></i>
+                                    Export
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="bg-gray-50 text-left text-gray-600 text-sm">
+                                        <th class="py-3 px-4">Chemical</th>
+                                        <th class="py-3 px-4">Date Used</th>
+                                        <th class="py-3 px-4">Quantity Used</th>
+                                        <th class="py-3 px-4">Person In Charge</th>
+                                        <th class="py-3 px-4">Remarks</th>
+                                        <th class="py-3 px-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usageHistoryTable">
+                                    <!-- Usage history will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Section -->
+                <div id="analytics" class="page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Analytics</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-lg font-semibold mb-4">Chemical Usage</h3>
+                            <div class="h-80">
+                                <canvas id="usageChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-lg font-semibold mb-4">Inventory by Location</h3>
+                            <div class="h-80">
+                                <canvas id="locationChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold mb-4">Monthly Usage Trends</h3>
+                        <div class="h-80">
+                            <canvas id="trendsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alerts Section -->
+                <div id="alerts" class="page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Alerts</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-amber-50 border-l-4 border-amber-500 rounded-lg p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="rounded-full bg-amber-100 p-3 mr-4">
+                                    <i class="fas fa-calendar-times text-amber-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-amber-800">Expiring Soon</h3>
+                                    <p class="text-amber-600">Chemicals expiring within 30 days</p>
+                                </div>
+                            </div>
+                            <div id="expiryAlertsList" class="space-y-3">
+                                <!-- Expiry alerts will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="rounded-full bg-red-100 p-3 mr-4">
+                                    <i class="fas fa-exclamation-circle text-red-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-red-800">Low Stock</h3>
+                                    <p class="text-red-600">Chemicals with less than 10% remaining</p>
+                                </div>
+                            </div>
+                            <div id="stockAlertsList" class="space-y-3">
+                                <!-- Stock alerts will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Section -->
+                <div id="settings" class="page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Settings</h2>
+                    
+                    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                        <div class="p-6">
+                            <h3 class="text-lg font-semibold mb-4">System Preferences</h3>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-md font-medium mb-2">Appearance</h4>
+                                    <div class="flex items-center">
+                                        <span class="mr-4">Theme:</span>
+                                        <div class="flex space-x-4">
+                                            <label class="flex items-center">
+                                                <input type="radio" name="theme" value="light" checked class="mr-2">
+                                                Light
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="theme" value="dark" class="mr-2">
+                                                Dark
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="theme" value="system" class="mr-2">
+                                                System Default
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-md font-medium mb-2">Notifications</h4>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" checked class="rounded text-indigo-600 mr-2">
+                                            Show expiry notifications
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" checked class="rounded text-indigo-600 mr-2">
+                                            Show low stock notifications
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-md font-medium mb-2">Alert Thresholds</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block mb-1">Expiry warning days:</label>
+                                            <input type="number" value="30" min="1" max="90" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        </div>
+                                        <div>
+                                            <label class="block mb-1">Low stock threshold (%):</label>
+                                            <input type="number" value="10" min="1" max="50" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-md font-medium mb-2">Data Management</h4>
+                                    <div class="space-y-4">
+                                        <button id="exportDataBtn" class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-200 transition">
+                                            <i class="fas fa-download mr-2"></i>
+                                            Export All Data
+                                        </button>
+                                        <button id="importDataBtn" class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-200 transition">
+                                            <i class="fas fa-upload mr-2"></i>
+                                            Import Data
+                                        </button>
+                                        <button id="clearDataBtn" class="bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition">
+                                            <i class="fas fa-trash-alt mr-2"></i>
+                                            Clear All Data
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Print View -->
+                <div id="printView" class="print-only">
+                    <div class="text-center mb-8">
+                        <h1 class="text-2xl font-bold">Chemical Inventory Report</h1>
+                        <p id="printDate" class="text-gray-600"></p>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold mb-4">Current Inventory</h2>
+                        <table class="min-w-full border">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border p-2 text-left">Name</th>
+                                    <th class="border p-2 text-left">CAS Number</th>
+                                    <th class="border p-2 text-left">Quantity</th>
+                                    <th class="border p-2 text-left">Location</th>
+                                    <th class="border p-2 text-left">Expiry Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="printInventoryTable">
+                                <!-- Print inventory will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div>
+                        <h2 class="text-xl font-bold mb-4">Recent Usage (Last 30 Days)</h2>
+                        <table class="min-w-full border">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border p-2 text-left">Chemical</th>
+                                    <th class="border p-2 text-left">Date Used</th>
+                                    <th class="border p-2 text-left">Quantity Used</th>
+                                    <th class="border p-2 text-left">Person In Charge</th>
+                                </tr>
+                            </thead>
+                            <tbody id="printUsageTable">
+                                <!-- Print usage will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <!-- Add Chemical Modal -->
+    <div id="addChemicalModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl mx-4">
+            <div class="p-6 border-b">
+                <h3 class="text-xl font-bold">Add New Chemical</h3>
+            </div>
+            <form id="addChemicalForm">
+                <div class="p-6 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Chemical Name*</label>
+                            <input type="text" name="name" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">CAS Number</label>
+                            <input type="text" name="casNumber" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Initial Quantity*</label>
+                            <input type="number" name="initialQuantity" required min="0" step="0.01" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Unit*</label>
+                            <select name="unit" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="g">Grams (g)</option>
+                                <option value="kg">Kilograms (kg)</option>
+                                <option value="ml">Milliliters (ml)</option>
+                                <option value="L">Liters (L)</option>
+                                <option value="pcs">Pieces (pcs)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Storage Location*</label>
+                            <select name="location" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="Lab A">Lab A</option>
+                                <option value="Lab B">Lab B</option>
+                                <option value="Storage Room">Storage Room</option>
+                                <option value="Refrigerator">Refrigerator</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
+                            <input type="text" name="supplier" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Catalog Number</label>
+                            <input type="text" name="catalogNumber" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date Received*</label>
+                            <input type="date" name="dateReceived" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date*</label>
+                            <input type="date" name="expiryDate" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                        <textarea name="notes" rows="3" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                    </div>
+                </div>
+                <div class="p-6 border-t bg-gray-50 flex justify-end">
+                    <button type="button" class="closeModal bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2 hover:bg-gray-300 transition">Cancel</button>
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Add Chemical</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Update Inventory Modal -->
+    <div id="updateInventoryModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4">
+            <div class="p-6 border-b">
+                <h3 class="text-xl font-bold">Update Inventory</h3>
+            </div>
+            <form id="updateInventoryForm">
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Chemical*</label>
+                        <select name="chemicalId" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500" id="chemicalSelect">
+                            <!-- Options will be populated here -->
+                        </select>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Quantity Used*</label>
+                            <input type="number" name="quantityUsed" required min="0.01" step="0.01" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date Used*</label>
+                            <input type="date" name="dateUsed" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Person In Charge*</label>
+                        <input type="text" name="personInCharge" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
+                        <textarea name="remarks" rows="2" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                    </div>
+                </div>
+                <div class="p-6 border-t bg-gray-50 flex justify-end">
+                    <button type="button" class="closeModal bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2 hover:bg-gray-300 transition">Cancel</button>
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Update Inventory</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- View Chemical Modal -->
+    <div id="viewChemicalModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl mx-4">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="text-xl font-bold">Chemical Details</h3>
+                <button class="closeModal text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="chemicalDetails" class="space-y-4">
+                    <!-- Chemical details will be populated here -->
+                </div>
+            </div>
+            <div class="p-6 border-t bg-gray-50 flex justify-end">
+                <button id="editChemicalBtn" class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg mr-2 hover:bg-indigo-200 transition">
+                    <i class="fas fa-edit mr-2"></i>
+                    Edit
+                </button>
+                <button id="deleteChemicalBtn" class="bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition">
+                    <i class="fas fa-trash-alt mr-2"></i>
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Chemical Modal -->
+    <div id="editChemicalModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl mx-4">
+            <div class="p-6 border-b">
+                <h3 class="text-xl font-bold">Edit Chemical</h3>
+            </div>
+            <form id="editChemicalForm">
+                <input type="hidden" name="id" id="editChemicalId">
+                <div class="p-6 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Chemical Name*</label>
+                            <input type="text" name="name" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">CAS Number</label>
+                            <input type="text" name="casNumber" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Current Quantity*</label>
+                            <input type="number" name="currentQuantity" required min="0" step="0.01" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Unit*</label>
+                            <select name="unit" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="g">Grams (g)</option>
+                                <option value="kg">Kilograms (kg)</option>
+                                <option value="ml">Milliliters (ml)</option>
+                                <option value="L">Liters (L)</option>
+                                <option value="pcs">Pieces (pcs)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Storage Location*</label>
+                            <select name="location" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="Lab A">Lab A</option>
+                                <option value="Lab B">Lab B</option>
+                                <option value="Storage Room">Storage Room</option>
+                                <option value="Refrigerator">Refrigerator</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
+                            <input type="text" name="supplier" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Catalog Number</label>
+                            <input type="text" name="catalogNumber" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date Received*</label>
+                            <input type="date" name="dateReceived" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date*</label>
+                            <input type="date" name="expiryDate" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                        <textarea name="notes" rows="3" class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                    </div>
+                </div>
+                <div class="p-6 border-t bg-gray-50 flex justify-end">
+                    <button type="button" class="closeModal bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2 hover:bg-gray-300 transition">Cancel</button>
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Confirm Delete Modal -->
+    <div id="confirmDeleteModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+            <div class="p-6 border-b">
+                <h3 class="text-xl font-bold">Confirm Delete</h3>
+            </div>
+            <div class="p-6">
+                <p>Are you sure you want to delete this chemical? This action cannot be undone.</p>
+                <p id="deleteChemicalName" class="font-semibold mt-2"></p>
+            </div>
+            <div class="p-6 border-t bg-gray-50 flex justify-end">
+                <button class="closeModal bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2 hover:bg-gray-300 transition">Cancel</button>
+                <button id="confirmDeleteBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirm Clear Data Modal -->
+    <div id="confirmClearDataModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+            <div class="p-6 border-b">
+                <h3 class="text-xl font-bold">Confirm Clear All Data</h3>
+            </div>
+            <div class="p-6">
+                <p>Are you sure you want to clear all data? This will delete all chemicals and usage history. This action cannot be undone.</p>
+            </div>
+            <div class="p-6 border-t bg-gray-50 flex justify-end">
+                <button class="closeModal bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2 hover:bg-gray-300 transition">Cancel</button>
+                <button id="confirmClearDataBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">Clear All Data</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bulk Actions Modal -->
+    <div id="bulkActionsModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+            <div class="p-6 border-b">
+                <h3 class="text-xl font-bold">Bulk Actions</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <p id="selectedItemsCount" class="mb-4">0 items selected</p>
+                
+                <button id="bulkExportBtn" class="w-full bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-200 transition flex items-center justify-center">
+                    <i class="fas fa-file-export mr-2"></i>
+                    Export Selected
+                </button>
+                
+                <button id="bulkMoveBtn" class="w-full bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-200 transition flex items-center justify-center">
+                    <i class="fas fa-exchange-alt mr-2"></i>
+                    Move to Location
+                </button>
+                
+                <button id="bulkDeleteBtn" class="w-full bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition flex items-center justify-center">
+                    <i class="fas fa-trash-alt mr-2"></i>
+                    Delete Selected
+                </button>
+            </div>
+            <div class="p-6 border-t bg-gray-50 flex justify-end">
+                <button class="closeModal bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Move Location Modal -->
+    <div id="moveLocationModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+            <div class="p-6 border-b">
+                <h3 class="text-xl font-bold">Move Chemicals</h3>
+            </div>
+            <form id="moveLocationForm">
+                <div class="p-6 space-y-4">
+                    <p id="moveItemsCount" class="mb-4">0 items selected</p>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">New Location*</label>
+                        <select name="newLocation" required class="border rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="Lab A">Lab A</option>
+                            <option value="Lab B">Lab B</option>
+                            <option value="Storage Room">Storage Room</option>
+                            <option value="Refrigerator">Refrigerator</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="p-6 border-t bg-gray-50 flex justify-end">
+                    <button type="button" class="closeModal bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2 hover:bg-gray-300 transition">Cancel</button>
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Move Chemicals</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Sample data
+        let chemicals = [
+            {
+                id: '1',
+                name: 'Sodium Hydroxide',
+                casNumber: '1310-73-2',
+                initialQuantity: 1000,
+                currentQuantity: 750,
+                unit: 'g',
+                location: 'Lab A',
+                supplier: 'Sigma-Aldrich',
+                catalogNumber: 'S8045',
+                dateReceived: '2023-01-15',
+                expiryDate: '2024-01-15',
+                notes: 'Store in a cool, dry place'
+            },
+            {
+                id: '2',
+                name: 'Hydrochloric Acid',
+                casNumber: '7647-01-0',
+                initialQuantity: 2500,
+                currentQuantity: 1800,
+                unit: 'ml',
+                location: 'Lab B',
+                supplier: 'Merck',
+                catalogNumber: 'H1758',
+                dateReceived: '2023-02-10',
+                expiryDate: '2024-02-10',
+                notes: 'Corrosive, handle with care'
+            },
+            {
+                id: '3',
+                name: 'Ethanol',
+                casNumber: '64-17-5',
+                initialQuantity: 5000,
+                currentQuantity: 2200,
+                unit: 'ml',
+                location: 'Storage Room',
+                supplier: 'VWR',
+                catalogNumber: 'E7023',
+                dateReceived: '2023-01-05',
+                expiryDate: '2025-01-05',
+                notes: 'Flammable, keep away from heat sources'
+            },
+            {
+                id: '4',
+                name: 'Acetone',
+                casNumber: '67-64-1',
+                initialQuantity: 2000,
+                currentQuantity: 150,
+                unit: 'ml',
+                location: 'Lab A',
+                supplier: 'Fisher Scientific',
+                catalogNumber: 'A9281',
+                dateReceived: '2023-03-20',
+                expiryDate: '2024-03-20',
+                notes: 'Highly flammable'
+            },
+            {
+                id: '5',
+                name: 'Methylene Blue',
+                casNumber: '61-73-4',
+                initialQuantity: 100,
+                currentQuantity: 85,
+                unit: 'g',
+                location: 'Lab B',
+                supplier: 'Sigma-Aldrich',
+                catalogNumber: 'M9140',
+                dateReceived: '2023-02-25',
+                expiryDate: '2023-12-25',
+                notes: 'Store at room temperature'
+            }
+        ];
+        
+        let usageHistory = [
+            {
+                id: '1',
+                chemicalId: '1',
+                chemicalName: 'Sodium Hydroxide',
+                dateUsed: '2023-05-10',
+                quantityUsed: 50,
+                unit: 'g',
+                personInCharge: 'John Doe',
+                remarks: 'Used for pH adjustment'
+            },
+            {
+                id: '2',
+                chemicalId: '2',
+                chemicalName: 'Hydrochloric Acid',
+                dateUsed: '2023-05-12',
+                quantityUsed: 200,
+                unit: 'ml',
+                personInCharge: 'Jane Smith',
+                remarks: 'Used for titration experiment'
+            },
+            {
+                id: '3',
+                chemicalId: '3',
+                chemicalName: 'Ethanol',
+                dateUsed: '2023-05-15',
+                quantityUsed: 500,
+                unit: 'ml',
+                personInCharge: 'Mike Johnson',
+                remarks: 'Used for sample preparation'
+            },
+            {
+                id: '4',
+                chemicalId: '4',
+                chemicalName: 'Acetone',
+                dateUsed: '2023-05-18',
+                quantityUsed: 350,
+                unit: 'ml',
+                personInCharge: 'Sarah Williams',
+                remarks: 'Used for cleaning glassware'
+            },
+            {
+                id: '5',
+                chemicalId: '1',
+                chemicalName: 'Sodium Hydroxide',
+                dateUsed: '2023-05-20',
+                quantityUsed: 100,
+                unit: 'g',
+                personInCharge: 'John Doe',
+                remarks: 'Used for neutralization'
+            },
+            {
+                id: '6',
+                chemicalId: '3',
+                chemicalName: 'Ethanol',
+                dateUsed: '2023-05-22',
+                quantityUsed: 800,
+                unit: 'ml',
+                personInCharge: 'Mike Johnson',
+                remarks: 'Used for extraction'
+            },
+            {
+                id: '7',
+                chemicalId: '4',
+                chemicalName: 'Acetone',
+                dateUsed: '2023-05-25',
+                quantityUsed: 1500,
+                unit: 'ml',
+                personInCharge: 'Sarah Williams',
+                remarks: 'Used for solvent extraction'
+            }
+        ];
+        
+        // Global variables
+        let currentChemicalId = null;
+        let selectedChemicals = [];
+        let usageChart, locationChart, trendsChart;
+        let darkMode = false;
+        
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const pages = document.querySelectorAll('.page');
+        const addChemicalBtn = document.getElementById('addChemicalBtn');
+        const addChemicalBtn2 = document.getElementById('addChemicalBtn2');
+        const updateInventoryBtn = document.getElementById('updateInventoryBtn');
+        const logUsageBtn = document.getElementById('logUsageBtn');
+        const viewAlertsBtn = document.getElementById('viewAlertsBtn');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const printBtn = document.getElementById('printBtn');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const searchInput = document.getElementById('searchInput');
+        const inventorySearch = document.getElementById('inventorySearch');
+        const locationFilter = document.getElementById('locationFilter');
+        const usageSearch = document.getElementById('usageSearch');
+        const usageFromDate = document.getElementById('usageFromDate');
+        const usageToDate = document.getElementById('usageToDate');
+        const exportUsageBtn = document.getElementById('exportUsageBtn');
+        const bulkActionBtn = document.getElementById('bulkActionBtn');
+        const selectAllChemicals = document.getElementById('selectAllChemicals');
+        const exportDataBtn = document.getElementById('exportDataBtn');
+        const importDataBtn = document.getElementById('importDataBtn');
+        const clearDataBtn = document.getElementById('clearDataBtn');
+        
+        // Modal elements
+        const modals = document.querySelectorAll('.modal');
+        const closeModalBtns = document.querySelectorAll('.closeModal');
+        const addChemicalModal = document.getElementById('addChemicalModal');
+        const updateInventoryModal = document.getElementById('updateInventoryModal');
+        const viewChemicalModal = document.getElementById('viewChemicalModal');
+        const editChemicalModal = document.getElementById('editChemicalModal');
+        const confirmDeleteModal = document.getElementById('confirmDeleteModal');
+        const confirmClearDataModal = document.getElementById('confirmClearDataModal');
+        const bulkActionsModal = document.getElementById('bulkActionsModal');
+        const moveLocationModal = document.getElementById('moveLocationModal');
+        
+        // Form elements
+        const addChemicalForm = document.getElementById('addChemicalForm');
+        const updateInventoryForm = document.getElementById('updateInventoryForm');
+        const editChemicalForm = document.getElementById('editChemicalForm');
+        const moveLocationForm = document.getElementById('moveLocationForm');
+        const chemicalSelect = document.getElementById('chemicalSelect');
+        
+        // Table elements
+        const chemicalsTable = document.getElementById('chemicalsTable');
+        const usageHistoryTable = document.getElementById('usageHistoryTable');
+        const recentActivityTable = document.getElementById('recentActivityTable');
+        
+        // Chart elements
+        const inventoryChart = document.getElementById('inventoryChart');
+        const usageChart = document.getElementById('usageChart');
+        const locationChart = document.getElementById('locationChart');
+        const trendsChart = document.getElementById('trendsChart');
+        
+        // Alert elements
+        const alertContainer = document.getElementById('alertContainer');
+        const expiryAlertsList = document.getElementById('expiryAlertsList');
+        const stockAlertsList = document.getElementById('stockAlertsList');
+        const expiringSoonList = document.getElementById('expiringSoonList');
+        
+        // Print elements
+        const printInventoryTable = document.getElementById('printInventoryTable');
+        const printUsageTable = document.getElementById('printUsageTable');
+        const printDate = document.getElementById('printDate');
+        
+        // Other elements
+        const alertCount = document.getElementById('alertCount');
+        const notificationBadge = document.getElementById('notificationBadge');
+        const totalChemicals = document.getElementById('totalChemicals');
+        const nearExpiryCount = document.getElementById('nearExpiryCount');
+        const lowStockCount = document.getElementById('lowStockCount');
+        const deleteChemicalName = document.getElementById('deleteChemicalName');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const confirmClearDataBtn = document.getElementById('confirmClearDataBtn');
+        const selectedItemsCount = document.getElementById('selectedItemsCount');
+        const moveItemsCount = document.getElementById('moveItemsCount');
+        const bulkExportBtn = document.getElementById('bulkExportBtn');
+        const bulkMoveBtn = document.getElementById('bulkMoveBtn');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load data from localStorage
+            loadFromLocalStorage();
+            
+            // Initialize UI
+            updateDashboard();
+            renderChemicalsTable();
+            renderUsageHistoryTable();
+            renderRecentActivity();
+            updateChemicalSelect();
+            updateAlerts();
+            initCharts();
+            
+            // Set today's date as default for date inputs
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                if (!input.value) {
+                    input.value = today;
+                }
+            });
+            
+            // Event listeners for navigation
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    showPage(target);
+                    
+                    // Mark sidebar item as active
+                    sidebarItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Event listeners for buttons
+            addChemicalBtn.addEventListener('click', () => openModal(addChemicalModal));
+            addChemicalBtn2.addEventListener('click', () => openModal(addChemicalModal));
+            updateInventoryBtn.addEventListener('click', () => openModal(updateInventoryModal));
+            logUsageBtn.addEventListener('click', () => openModal(updateInventoryModal));
+            viewAlertsBtn.addEventListener('click', () => showPage('alerts'));
+            generateReportBtn.addEventListener('click', printReport);
+            exportBtn.addEventListener('click', exportToExcel);
+            printBtn.addEventListener('click', printReport);
+            bulkActionBtn.addEventListener('click', () => {
+                selectedItemsCount.textContent = `${selectedChemicals.length} items selected`;
+                openModal(bulkActionsModal);
+            });
+            
+            // Event listeners for forms
+            addChemicalForm.addEventListener('submit', handleAddChemical);
+            updateInventoryForm.addEventListener('submit', handleUpdateInventory);
+            editChemicalForm.addEventListener('submit', handleEditChemical);
+            moveLocationForm.addEventListener('submit', handleMoveLocation);
+            
+            // Event listeners for bulk actions
+            bulkExportBtn.addEventListener('click', exportSelectedToExcel);
+            bulkMoveBtn.addEventListener('click', () => {
+                moveItemsCount.textContent = `${selectedChemicals.length} items selected`;
+                closeModal(bulkActionsModal);
+                openModal(moveLocationModal);
+            });
+            bulkDeleteBtn.addEventListener('click', confirmBulkDelete);
+            
+            // Event listeners for modals
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modal = this.closest('.modal');
+                    closeModal(modal);
+                });
+            });
+            
+            // Event listeners for filters
+            inventorySearch.addEventListener('input', renderChemicalsTable);
+            locationFilter.addEventListener('change', renderChemicalsTable);
+            usageSearch.addEventListener('input', renderUsageHistoryTable);
+            usageFromDate.addEventListener('change', renderUsageHistoryTable);
+            usageToDate.addEventListener('change', renderUsageHistoryTable);
+            
+            // Event listeners for data management
+            exportDataBtn.addEventListener('click', exportAllData);
+            importDataBtn.addEventListener('click', importData);
+            clearDataBtn.addEventListener('click', () => openModal(confirmClearDataModal));
+            confirmClearDataBtn.addEventListener('click', clearAllData);
+            
+            // Event listener for select all checkbox
+            selectAllChemicals.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.chemical-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                    const chemicalId = checkbox.getAttribute('data-id');
+                    if (this.checked) {
+                        if (!selectedChemicals.includes(chemicalId)) {
+                            selectedChemicals.push(chemicalId);
+                        }
+                    } else {
+                        selectedChemicals = selectedChemicals.filter(id => id !== chemicalId);
+                    }
+                });
+            });
+            
+            // Event listener for dark mode toggle
+            darkModeToggle.addEventListener('change', toggleDarkMode);
+            
+            // Event listener for sidebar toggle
+            sidebarToggle.addEventListener('click', toggleSidebar);
+            
+            // Event listener for search input
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                if (searchTerm) {
+                    showPage('inventory');
+                    inventorySearch.value = searchTerm;
+                    renderChemicalsTable();
+                }
+            });
+            
+            // Event listener for export usage button
+            exportUsageBtn.addEventListener('click', exportUsageToExcel);
+        });
+        
+        // Function to show a specific page
+        function showPage(pageId) {
+            pages.forEach(page => {
+                page.classList.add('hidden');
+                page.classList.remove('active');
+            });
+            
+            const activePage = document.getElementById(pageId);
+            if (activePage) {
+                activePage.classList.remove('hidden');
+                activePage.classList.add('active');
+            }
+        }
+        
+        // Function to open a modal
+        function openModal(modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        
+        // Function to close a modal
+        function closeModal(modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        
+        // Function to toggle sidebar
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+        }
+        
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            darkMode = !darkMode;
+            document.documentElement.classList.toggle('dark');
+            
+            if (darkMode) {
+                document.body.classList.add('bg-gray-900', 'text-white');
+                document.body.classList.remove('bg-gray-100');
+            } else {
+                document.body.classList.remove('bg-gray-900', 'text-white');
+                document.body.classList.add('bg-gray-100');
+            }
+        }
+        
+        // Function to save data to localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('chemicals', JSON.stringify(chemicals));
+            localStorage.setItem('usageHistory', JSON.stringify(usageHistory));
+        }
+        
+        // Function to load data from localStorage
+        function loadFromLocalStorage() {
+            const savedChemicals = localStorage.getItem('chemicals');
+            const savedUsageHistory = localStorage.getItem('usageHistory');
+            
+            if (savedChemicals) {
+                chemicals = JSON.parse(savedChemicals);
+            }
+            
+            if (savedUsageHistory) {
+                usageHistory = JSON.parse(savedUsageHistory);
+            }
+        }
+        
+        // Function to update the dashboard
+        function updateDashboard() {
+            // Update counts
+            totalChemicals.textContent = chemicals.length;
+            
+            // Near expiry count
+            const today = new Date();
+            const nearExpiryItems = chemicals.filter(chemical => {
+                const expiryDate = new Date(chemical.expiryDate);
+                const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                return daysUntilExpiry <= 30;
+            });
+            
+            nearExpiryCount.textContent = nearExpiryItems.length;
+            
+            // Low stock count
+            const lowStockItems = chemicals.filter(chemical => {
+                const stockPercentage = (chemical.currentQuantity / chemical.initialQuantity) * 100;
+                return stockPercentage <= 10;
+            });
+            
+            lowStockCount.textContent = lowStockItems.length;
+            
+            // Update expiring soon list
+            expiringSoonList.innerHTML = '';
+            
+            if (nearExpiryItems.length === 0) {
+                expiringSoonList.innerHTML = '<p class="text-gray-500">No chemicals expiring soon.</p>';
+            } else {
+                nearExpiryItems.slice(0, 5).forEach(chemical => {
+                    const expiryDate = new Date(chemical.expiryDate);
+                    const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    const item = document.createElement('div');
+                    item.className = 'flex items-center justify-between py-2 border-b last:border-0';
+                    
+                    item.innerHTML = `
+                        <div>
+                            <p class="font-medium">${chemical.name}</p>
+                            <p class="text-sm text-gray-500">${chemical.location}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="${daysUntilExpiry <= 7 ? 'text-red-600' : 'text-amber-600'} font-medium">${daysUntilExpiry} days</p>
+                            <p class="text-sm text-gray-500">${formatDate(chemical.expiryDate)}</p>
+                        </div>
+                    `;
+                    
+                    expiringSoonList.appendChild(item);
+                });
+            }
+        }
+        
+        // Function to render the chemicals table
+        function renderChemicalsTable() {
+            chemicalsTable.innerHTML = '';
+            
+            // Apply filters
+            const searchTerm = inventorySearch.value.toLowerCase();
+            const locationValue = locationFilter.value;
+            
+            let filteredChemicals = chemicals;
+            
+            if (searchTerm) {
+                filteredChemicals = filteredChemicals.filter(chemical => 
+                    chemical.name.toLowerCase().includes(searchTerm) || 
+                    chemical.casNumber.toLowerCase().includes(searchTerm) ||
+                    (chemical.supplier && chemical.supplier.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            if (locationValue) {
+                filteredChemicals = filteredChemicals.filter(chemical => chemical.location === locationValue);
+            }
+            
+            if (filteredChemicals.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                    <td colspan="8" class="py-4 px-4 text-center text-gray-500">No chemicals found.</td>
+                `;
+                chemicalsTable.appendChild(emptyRow);
+                return;
+            }
+            
+            // Sort by name
+            filteredChemicals.sort((a, b) => a.name.localeCompare(b.name));
+            
+            filteredChemicals.forEach(chemical => {
+                const row = document.createElement('tr');
+                row.className = 'border-b hover:bg-gray-50';
+                
+                // Calculate stock percentage
+                const stockPercentage = (chemical.currentQuantity / chemical.initialQuantity) * 100;
+                
+                // Determine status
+                let statusClass = 'bg-green-100 text-green-800';
+                let```
