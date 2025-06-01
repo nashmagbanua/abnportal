@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chemical Inventory Tool</title>
+  <link rel="stylesheet" href="chemical.css">
+  <script type="module" src="chemical.js"></script>
+</head>
+<body>
+  <h1>Chemical Inventory Tool</h1>
+  <button onclick="document.getElementById('add-popup').style.display='block'">➕ Add Chemical</button>
+
+  <div id="add-popup" style="display:none;">
+    <h2>Add Chemical</h2>
+    <label>Chemical Name: <input type="text" id="chemical-name" /></label><br>
+    <label>Quantity: <input type="number" id="chemical-quantity" /></label><br>
+    <label>Unit:
+      <select id="chemical-unit">
+        <option value="L">Liters (L)</option>
+        <option value="CBY">Carboy (25L)</option>
+        <option value="kg">Kilograms (kg)</option>
+      </select>
+    </label><br>
+    <label>Operator Name: <input type="text" id="operator-name" /></label><br>
+    <button onclick="addChemicalToFirebase()">Save</button>
+    <button onclick="document.getElementById('add-popup').style.display='none'">Close</button>
+  </div>
+</body>
+</html>
