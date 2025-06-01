@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chemical Inventory Tool</title>
+  <link rel="stylesheet" href="chemical.css">
+</head>
+<body class="dark-mode">
+  <header class="header">
+    <h1>🧪 Chemical Inventory</h1>
+    <div class="summary">
+      <div class="card">Total: <span id="totalChemicals">0</span></div>
+      <div class="card low">Low Stock: <span id="lowStock">0</span></div>
+      <div class="card expired">Expired: <span id="expired">0</span></div>
+    </div>
+    <div class="buttons">
+      <button onclick="openAddPopup()">+ Add Chemical</button>
+      <button onclick="openUsePopup()">- Use Chemical</button>
+      <button onclick="toggleHistory()">📄 View History</button>
+      <button onclick="exportData()">📤 Export</button>
+      <button onclick="printPage()">🖨 Print</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="inventoryTable">Loading inventory...</section>
+    <section id="historyPanel" style="display:none;">Loading history...</section>
+  </main>
+
+  <!-- Add Chemical Popup -->
+  <div id="addPopup" class="modal hidden">
+    <div class="modal-content">
+      <h2>Add Chemical</h2>
+      <button onclick="closePopup('addPopup')">Close</button>
+    </div>
+  </div>
+
+  <!-- Use Chemical Popup -->
+  <div id="usePopup" class="modal hidden">
+    <div class="modal-content">
+      <h2>Use Chemical</h2>
+      <button onclick="closePopup('usePopup')">Close</button>
+    </div>
+  </div>
+
+  <script src="chemical.js"></script>
+</body>
+</html>
