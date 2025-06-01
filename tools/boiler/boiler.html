@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Boiler Tool - Operator v2</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="boiler.js"></script>
+</head>
+<body class="light-mode">
+  <header>
+    <h1>🔥 Boiler Efficiency & Monitoring Tool</h1>
+    <button id="themeToggle" onclick="toggleTheme()">🌙</button>
+  </header>
+
+  <!-- SECTION 1: Steam Output & Efficiency -->
+  <section>
+    <h2>🧮 Boiler Performance</h2>
+    <label>Steam Output (m³):
+      <input type="number" id="steamOutput" readonly>
+      <button onclick="showSteamPopup()">✏️ Edit</button>
+    </label>
+    <div id="steamPopup" class="popup">
+      <div class="popup-content">
+        <h3>Enter Steam Meter Readings</h3>
+        <label>Start Reading (00:00): <input type="number" id="startReading"></label>
+        <label>End Reading (23:00): <input type="number" id="endReading"></label>
+        <button onclick="confirmSteam()">OK</button>
+        <button onclick="closePopup()">Cancel</button>
+      </div>
+    </div>
+    <label>Coal Buckets: <input type="number" id="coalBuckets"></label>
+    <label>GCV (kcal/kg): <input type="number" id="gcvValue"></label>
+    <button onclick="calculateEfficiency()">Calculate Efficiency</button>
+    <p>Efficiency: <span id="efficiencyResult">--</span>%</p>
+  </section>
+
+  <!-- SECTION 2: Coal Delivery -->
+  <section>
+    <h2>🚛 Coal Delivery Log</h2>
+    <input id="drNum" placeholder="DR Number" />
+    <input id="plateNum" placeholder="Plate Number" />
+    <input id="driverName" placeholder="Driver Name" />
+    <input id="weight" placeholder="Weight Delivered (tons)" />
+<input id="receiverName" placeholder="Received by (Operator Name)" />
+    <input id="yard" placeholder="Coal Yard (e.g. CY9)" />
+    <input id="gcvDelivery" placeholder="GCV" />
+    <input id="deliveryTime" type="time" />
+    <button onclick="saveDelivery()">✅ Save Delivery</button>
+
+    <h3>📦 Delivery History (Today)</h3>
+    <table>
+      <thead>
+        <tr><th>Yard</th><th>Time</th><th>Weight</th><th>GCV</th><th>Received By</th></tr>
+      </thead>
+      <tbody id="deliveryHistory"></tbody>
+    </table>
+  </section>
+
+  <!-- SECTION 3: Coal Charging -->
+  <section>
+    <h2>🪣 Coal Charging Logs</h2>
+    <label>Date:
+      <input type="date" id="filterDate" onchange="filterByDate()" />
+    </label>
+    <label>Boiler:
+      <select id="boilerUsed">
+        <option>Boiler A</option>
+        <option>Boiler B</option>
+      </select>
+    </label>
+    <input id="chargeTime" type="time" placeholder="Time" />
+    <input id="buckets" placeholder="Buckets Charged" />
+    <input id="chargeYard" placeholder="Coal Yard Used" />
+    <label><input id="cyDepleted" type="checkbox" /> CY Depleted?</label>
+    <input id="ash" placeholder="Tapon ng Abo (wheelbarrow)" />
+    <button onclick="saveCharging()">✅ Save Charging Log</button>
+
+    <h3>📋 Charging Summary</h3>
+    <div id="summaryContainer">
+      <h4>Boiler A</h4>
+      <table>
+        <thead><tr><th>Time</th><th>Buckets</th><th>CY</th><th>Tapon</th></tr></thead>
+        <tbody id="boilerAlog"></tbody>
+      </table>
+      <p id="totalA"></p>
+
+      <h4>Boiler B</h4>
+      <table>
+        <thead><tr><th>Time</th><th>Buckets</th><th>CY</th><th>Tapon</th></tr></thead>
+        <tbody id="boilerBlog"></tbody>
+      </table>
+      <p id="totalB"></p>
+    </div>
+  </section>
+</body>
+</html>
