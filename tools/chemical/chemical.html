@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chemical Inventory Tool</title>
+  <link rel="stylesheet" href="chemical.css" />
+  <script src="chemical.js" defer></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="dark-theme">
+  <button id="themeToggle" class="theme-toggle-btn">
+    <i class="fas fa-sun" id="sunIcon"></i>
+    <i class="fas fa-moon d-none" id="moonIcon"></i>
+  </button>
+  <div class="container">
+    <h1>Chemical Inventory Tool</h1>
+    <button class="btn" onclick="openForm()">+ Add Chemical</button>
+    <div id="chemicalForm" class="card hidden">
+      <h3>Add Chemical</h3>
+      <label>Chemical Name:</label>
+      <input type="text" id="chemicalName" />
+      <label>Quantity:</label>
+      <input type="number" id="quantity" />
+      <label>Unit:</label>
+      <select id="unit">
+        <option value="Liters (L)">Liters (L)</option>
+        <option value="Carboy (CBY)">Carboy (CBY)</option>
+        <option value="Kilograms (kg)">Kilograms (kg)</option>
+      </select>
+      <label>Operator Name:</label>
+      <input type="text" id="operatorName" />
+      <div class="button-row">
+        <button onclick="saveChemical()">Save</button>
+        <button onclick="closeForm()">Close</button>
+      </div>
+    </div>
+    <div id="logPanel" class="card">
+      <h3>📋 Chemical Records</h3>
+      <div id="logList"></div>
+    </div>
+  </div>
+</body>
+</html>
