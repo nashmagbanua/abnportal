@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chemical Inventory Tool</title>
+  <link rel="stylesheet" href="chemical.css" />
+  <script src="chemical.js" defer></script>
+</head>
+<body class="dark-theme">
+  <button id="themeToggle" class="theme-toggle-btn">🌙</button>
+  <div class="container">
+    <h1>Chemical Inventory Tool</h1>
+    <div class="top-buttons">
+      <button onclick="openAddForm()">+ Add Chemical</button>
+      <button onclick="openUseForm()">↘ Use Chemical</button>
+      <button onclick="exportCSV()">📤 Export</button>
+      <button onclick="window.print()">🖨️ Print</button>
+    </div>
+
+    <div id="addForm" class="popup hidden">
+      <h3>Add Chemical</h3>
+      <input type="text" id="addName" placeholder="Chemical Name">
+      <input type="number" id="addQty" placeholder="Quantity">
+      <select id="addUnit">
+        <option value="L">Liters (L)</option>
+        <option value="CBY">Carboy (CBY = 25L)</option>
+        <option value="kg">Kilograms (kg)</option>
+      </select>
+      <input type="text" id="addOperator" placeholder="Operator Name">
+      <button onclick="addChemical()">Save</button>
+      <button onclick="closeAddForm()">Close</button>
+    </div>
+
+    <div id="useForm" class="popup hidden">
+      <h3>Use Chemical</h3>
+      <select id="useName"></select>
+      <input type="number" id="useQty" placeholder="Quantity to Use">
+      <input type="text" id="useOperator" placeholder="Operator Name">
+      <button onclick="useChemical()">Use</button>
+      <button onclick="closeUseForm()">Close</button>
+    </div>
+
+    <h2>📦 Current Inventory</h2>
+    <div id="inventoryList"></div>
+
+    <h2>🕓 Usage History</h2>
+    <div id="usageHistory"></div>
+  </div>
+</body>
+</html>
